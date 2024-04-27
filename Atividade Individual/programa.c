@@ -32,31 +32,44 @@ void limparBuffer() {
 }
 
 void iniciarLista(Artista listaArtistas[], int *posArtista) {
-    FILE *arquivo = fopen("Artista.txt", "r");
+    FILE *arquivo;
+    char linha[MAX_NOME]; 
+
+    arquivo = fopen("Artista.txt", "r");
     if (arquivo == NULL) {
         printf("Erro ao abrir o arquivo.\n");
         return;
     }
 
-    while (fscanf(arquivo, " %[^\n]", listaArtistas[*posArtista].nome) != EOF) {
-        fscanf(arquivo, " %[^\n]", listaArtistas[*posArtista].tipoMusc);
-        fscanf(arquivo, " %[^\n]", listaArtistas[*posArtista].lugarOrigem);
-        limparBuffer();
+    while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+        
+        linha[strcspn(linha, "\n")] = '\0';
+        strcpy(listaArtistas[*posArtista].nome, linha);
+
+        fgets(linha, sizeof(linha), arquivo);
+        linha[strcspn(linha, "\n")] = '\0';
+        strcpy(listaArtistas[*posArtista].tipoMusc, linha);
+
+        fgets(linha, sizeof(linha), arquivo);
+        linha[strcspn(linha, "\n")] = '\0';
+        strcpy(listaArtistas[*posArtista].lugarOrigem, linha);
 
         listaArtistas[*posArtista].numAlbuns = 0;
-        while (1) {
-            fscanf(arquivo, " %[^\n]", listaArtistas[*posArtista].listaAlbuns[listaArtistas[*posArtista].numAlbuns]);
-            listaArtistas[*posArtista].numAlbuns++;
-            if (strcmp(listaArtistas[*posArtista].listaAlbuns[listaArtistas[*posArtista].numAlbuns - 1], "==========") == 0) {
+        while (fgets(linha, sizeof(linha), arquivo) != NULL) {
+            linha[strcspn(linha, "\n")] = '\0';
+            if (strcmp(linha, "==========") == 0) {
                 break;
             }
+            strcpy(listaArtistas[*posArtista].listaAlbuns[listaArtistas[*posArtista].numAlbuns], linha);
+            listaArtistas[*posArtista].numAlbuns++;
         }
-        listaArtistas[*posArtista].numAlbuns -= 1;
+
         (*posArtista)++;
     }
 
     fclose(arquivo);
 }
+
 
 void reescreverLista(Artista listaArtistas[], int quantidadeArtistas) {
     FILE *arquivo = fopen("Artista.txt", "w+");
@@ -79,13 +92,16 @@ void reescreverLista(Artista listaArtistas[], int quantidadeArtistas) {
 }
 
 void inserirArtista(Artista listaArtistas[], int *posArtista) {
-    FILE *arquivo = fopen("Artista.txt", "a");
+    FILE *arquivo;
+    char linha[MAX_NOME]; 
+    arquivo = fopen("Artista.txt", "a");
     if (arquivo == NULL) {
         printf("Erro para abrir o arquivo.\n");
         exit(EXIT_FAILURE);
     }
 
     limparBuffer();
+
     printf("\nNome do artista: ");
     fgets(listaArtistas[*posArtista].nome, sizeof(listaArtistas[*posArtista].nome), stdin);
     listaArtistas[*posArtista].nome[strcspn(listaArtistas[*posArtista].nome, "\n")] = '\0';
@@ -96,7 +112,7 @@ void inserirArtista(Artista listaArtistas[], int *posArtista) {
     listaArtistas[*posArtista].tipoMusc[strcspn(listaArtistas[*posArtista].tipoMusc, "\n")] = '\0';
     fprintf(arquivo, "%s\n", listaArtistas[*posArtista].tipoMusc);
 
-    printf("lugar de Origem: ");
+    printf("Lugar de Origem: ");
     fgets(listaArtistas[*posArtista].lugarOrigem, sizeof(listaArtistas[*posArtista].lugarOrigem), stdin);
     listaArtistas[*posArtista].lugarOrigem[strcspn(listaArtistas[*posArtista].lugarOrigem, "\n")] = '\0';
     fprintf(arquivo, "%s\n", listaArtistas[*posArtista].lugarOrigem);
@@ -104,15 +120,19 @@ void inserirArtista(Artista listaArtistas[], int *posArtista) {
     int numAlbuns = 0;
     do {
         printf("Digite o nome do álbum (ou '0' para finalizar): ");
-        fgets(listaArtistas[*posArtista].listaAlbuns[numAlbuns], sizeof(listaArtistas[*posArtista].listaAlbuns[numAlbuns]), stdin);
-        listaArtistas[*posArtista].listaAlbuns[numAlbuns][strcspn(listaArtistas[*posArtista].listaAlbuns[numAlbuns], "\n")] = '\0';
-        fprintf(arquivo, "%s\n", listaArtistas[*posArtista].listaAlbuns[numAlbuns]);
-        numAlbuns++;
-    } while (strcmp(listaArtistas[*posArtista].listaAlbuns[numAlbuns - 1], "0") != 0 && numAlbuns < MAX_ALBUNS);
+        fgets(linha, sizeof(linha), stdin);
+        linha[strcspn(linha, "\n")] = '\0';
+        if (strcmp(linha, "0") != 0 && numAlbuns < MAX_ALBUNS) {
+            strcpy(listaArtistas[*posArtista].listaAlbuns[numAlbuns], linha);
+            fprintf(arquivo, "%s\n", linha);
+            numAlbuns++;
+        }
+    } while (strcmp(linha, "0") != 0 && numAlbuns < MAX_ALBUNS);
 
-    listaArtistas[*posArtista].numAlbuns = numAlbuns - 1;
+    listaArtistas[*posArtista].numAlbuns = numAlbuns;
 
     fclose(arquivo);
+
     (*posArtista)++;
 }
 
