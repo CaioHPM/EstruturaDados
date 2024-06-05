@@ -78,6 +78,55 @@ void atualizarArquivo(Musica *playlist[], int quantidadeMusicas){
     fclose(arq);
 }
 
+void inserirMusica(Musica *playlist[], int quantidadeMusicas){
+    quantidadeMusicas ++;
+
+    printf("Digite o nome do artista:");
+    scanf("%s", playlist[quantidadeMusicas]->artista);
+    printf("Digite o nome da musica:");
+    scanf("%s", playlist[quantidadeMusicas]->nomeMusica);
+
+    playlist[quantidadeMusicas - 1]->proximo = &playlist[quantidadeMusicas];
+    playlist[quantidadeMusicas]->proximo = &playlist[0];
+    playlist[0]->anterior = &playlist[quantidadeMusicas];
+
+    atualizarArquivo(playlist, quantidadeMusicas);
+
+}
+
+void excluirMusica(Musica *playlist[], int quantidadeMusica){
+    char comparador[100];
+    int cont = 0;
+
+    printf("Digite o nome do artista ou da musica:");
+    scanf("%s", comparador);
+
+    while (cont <= quantidadeMusica)
+    {
+        if (strcmp(comparador, playlist[cont]->nomeMusica) || strcmp(comparador, playlist[cont]->artista))
+        {
+            if (cont == quantidadeMusica)
+            {
+                playlist[cont - 1]->proximo = &playlist[0];
+                playlist[0]->anterior = &playlist[cont - 1];
+            }
+            else if (cont == 0)
+            {
+                playlist[quantidadeMusica]->proximo = &playlist[1];
+            }
+            
+            else
+            {
+                playlist[cont - 1]->proximo = &playlist[cont + 1];
+                playlist[cont + 1]->anterior = &playlist[cont - 1];
+            }
+            
+        }
+        cont++;
+    }
+    
+}
+
 int main(){
     Musica *playlist[50];
     int quantidadeMusicas = 0;
