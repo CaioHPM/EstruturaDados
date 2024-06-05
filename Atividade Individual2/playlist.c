@@ -94,25 +94,30 @@ void inserirMusica(Musica *playlist[], int quantidadeMusicas){
 
 }
 
-void excluirMusica(Musica *playlist[], int quantidadeMusica){
+void excluirMusica(Musica *playlist[], int quantidadeMusicas){
     char comparador[100];
-    int cont = 0;
+    int cont = 0, indicador = 0;
 
     printf("Digite o nome do artista ou da musica:");
     scanf("%s", comparador);
 
-    while (cont <= quantidadeMusica)
+    while (cont <= quantidadeMusicas)
     {
         if (strcmp(comparador, playlist[cont]->nomeMusica) || strcmp(comparador, playlist[cont]->artista))
         {
-            if (cont == quantidadeMusica)
+            indicador = cont;
+
+            printf("Artista/Musica removido com sucesso.");
+
+            if (cont == quantidadeMusicas)
             {
                 playlist[cont - 1]->proximo = &playlist[0];
                 playlist[0]->anterior = &playlist[cont - 1];
             }
             else if (cont == 0)
             {
-                playlist[quantidadeMusica]->proximo = &playlist[1];
+                playlist[quantidadeMusicas]->proximo = &playlist[1];
+                playlist[1]->anterior = &playlist[quantidadeMusicas];
             }
             
             else
@@ -122,9 +127,54 @@ void excluirMusica(Musica *playlist[], int quantidadeMusica){
             }
             
         }
+        if (indicador <= cont)
+        {
+            playlist[cont] = playlist[cont + 1];
+            playlist[quantidadeMusicas] = NULL;
+        }
+        
         cont++;
     }
-    
+    quantidadeMusicas--;
+    atualizarArquivo(playlist, quantidadeMusicas);
+}
+
+void buscarMusica(Musica *playlist[], int quantidadeMusicas){
+    char comparador[100];
+    int cont = 0;
+
+    printf("Digite o nome do artista ou da musica:");
+    scanf("%s", comparador);
+
+    while (cont <= quantidadeMusicas)
+    {
+        if (strcmp(comparador, playlist[cont]->nomeMusica) || strcmp(comparador, playlist[cont]->artista))
+        {
+            printf("==============================================================================\n");
+            printf("Artista/Musica encontrado com sucesso.\n");
+            printf("É a musica da posição %d da sua playlist.\n", &cont + 1);
+            printf("Artista: %s, Musica: %s.", playlist[cont]->artista, playlist[cont]->nomeMusica);
+            printf("==============================================================================\n");
+
+        }
+        cont++;
+    }
+}
+
+void mostrarOrdemCadastrada(Musica *playlist, int quantidadeMusicas){
+
+    printf("================================================================\n");
+
+    for (int i = 0; i <= quantidadeMusicas; i++)
+    {
+        printf("Artista: %s, Musica: %s.\n", playlist[i].artista, playlist[i].nomeMusica);
+        if (quantidadeMusicas != i)
+        {
+            printf("---------------------------------------------------\n");   
+        }
+    }
+    printf("================================================================\n");
+
 }
 
 int main(){
