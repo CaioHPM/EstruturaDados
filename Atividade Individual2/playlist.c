@@ -5,6 +5,7 @@
 typedef struct Musica{
     char artista[100];
     char nomeMusica[100];
+    int numeroMusica;
     struct Musica* proximo;
     struct Musica* anterior;
 
@@ -13,35 +14,73 @@ typedef struct Musica{
 void criarLista(Musica *playlist[]){
     char linha[300];
     char *divisor;  
-    int numeroMusica = 0;
+    int cont = 0;
+
     FILE *arq = fopen("musicas.txt", "r");
 
     if (arq == NULL)
     {
         printf("Erro ao abrir o arquivo.\n");
-        exit(1);
+        return;
     }
-    
+
     while ( fgets(linha, 300, arq) != NULL)     
     {
+        if (cont == 0)
+        {
+            playlist[cont]->anterior = NULL;
+        }
+        else
+        {
+            playlist[cont]->anterior = &playlist[cont - 1];
+        }
+        
+
+        playlist[cont]->numeroMusica = cont;
         divisor = strtok(linha, ";");
         if (divisor)
         {
-            strcpy(playlist[numeroMusica]->artista, linha);
+            strcpy(playlist[cont]->artista, linha);
             divisor = strtok(linha, "\n");   
             if (divisor)
             {
-                strcpy(playlist[numeroMusica]->nomeMusica, linha);
+                strcpy(playlist[cont]->nomeMusica, linha);
             }
         }
-        numeroMusica += 1;
+        cont += 1;
     }
+
+    playlist[0]->anterior = &playlist[cont];
+    playlist[cont-1]->proximo = &playlist[0];
+
+    fclose(arq);
+}
+
+void atualizarArquivo(Musica *playlist[], int quantidadeMusicas){
+    int i = 0;
+
+    FILE *arq = fopen("musicas.txt", "w");
+    if (arq == NULL)
+    {
+        return;
+    }
+
+    while (i <= quantidadeMusicas)
+    {
+        
+        printf(playlist[i]->artista);
+        printf(";");
+        printf(playlist[i]->nomeMusica);
+
+        i++;
+    }
+
     fclose(arq);
 }
 
 int main(){
     Musica *playlist[50];
-
+    int quantidadeMusicas = 0;
     
     criarLista(playlist);
 
