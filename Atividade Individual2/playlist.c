@@ -5,7 +5,6 @@
 typedef struct Musica{
     char artista[100];
     char nomeMusica[100];
-    int numeroMusica;
     struct Musica* proximo;
     struct Musica* anterior;
 
@@ -36,7 +35,6 @@ void criarLista(Musica *playlist[]){
         }
         
 
-        playlist[cont]->numeroMusica = cont;
         divisor = strtok(linha, ";");
         if (divisor)
         {
@@ -177,22 +175,98 @@ void mostrarOrdemCadastrada(Musica *playlist, int quantidadeMusicas){
 
 }
 
+int compararMusicas(const void *a, const void *b) {
+    Musica *musicaA = (Musica *)a;
+    Musica *musicaB = (Musica *)b;
+    return strcasecmp(musicaA->nomeMusica, musicaB->nomeMusica);
+}
+
+void mostrarOrdemAlfabetica(Musica listaMusicas[], int quantidadeMusicas) {
+
+    Musica listaTemporaria[500];
+
+    for(int cont = 0; cont < quantidadeMusicas; cont++) {
+        listaTemporaria[cont] = listaMusicas[cont];
+    }
+
+    qsort(listaTemporaria, quantidadeMusicas, sizeof(Musica), compararMusicas);
+
+    printf("================================================================\n");
+    printf("\nPlaylist em ordem alfabetica:\n");
+    printf("================================================================\n");
+    for (int cont = 0; cont <= quantidadeMusicas; cont++) {
+        printf("Artista: %s, Musica: %s\n", listaTemporaria[cont].artista, listaTemporaria[cont].nomeMusica);
+        if (cont != quantidadeMusicas)
+        {
+            printf("---------------------------------------------------\n");
+        }
+    }
+    printf("================================================================\n");
+}
+
+void proximaMusica(Musica **musicaTocando) {
+    *musicaTocando = (*musicaTocando)->proximo;
+}
+
+void musicaAnterior(Musica **musicaTocando) {
+    *musicaTocando = (*musicaTocando)->anterior;
+}
+
 int main(){
     Musica *playlist[50];
-    int quantidadeMusicas = 0;
+    Musica *musicaTocando;
+    int quantidadeMusicas = 0, opcao = 0;
     
     criarLista(playlist);
 
+    musicaTocando = playlist[0];
 
-    for (int i = 0; i < 5; i++)
+    while (opcao != 8)
     {
-        printf("%s\n", playlist[i]->artista);
+        printf("\nMusica que está tocando: %s\n", musicaTocando->nomeMusica);
+        printf("---------------------------------------------------\n");
+
+        printf("Digite 1 para exibir a playlist pela ordem de cadastro\n");
+        printf("Digite 2 para exibir a playlist ordenada pelo nome das músicas\n");
+        printf("Digite 3 para inserir novas músicas\n");
+        printf("Digite 4 para remover uma música\n");
+        printf("Digite 5 para busca por uma música\n");
+        printf("Digite 6 para avançar para próxima música\n");
+        printf("Digite 7 para retornar a música anterior\n");
+        printf("---------------------------------------------------\n");
+        scanf("%d", &opcao);
+
+        switch (opcao)
+        {
+        case 1:
+            mostrarOrdemCadastrada(playlist, quantidadeMusicas);
+            break;
+        case 2:
+            mostrarOrdemAlfabetica(playlist, quantidadeMusicas);
+            break;
+        case 3:
+            inserirMusica(playlist, quantidadeMusicas);
+            break;
+        case 4:
+            excluirMusica(playlist, quantidadeMusicas);
+            break;
+        case 5:
+            buscarMusica(playlist, quantidadeMusicas);
+            break;
+        case 6:
+            proximaMusica(musicaTocando);
+            break;
+        case 7:
+            musicaAnterior(musicaTocando);
+            break;
+        case 8:
+            printf("Obrigado por usar este programa.");
+            break;
+        default:
+            printf("O numero digitado não representa nenhuma das opções anteriores.");
+            break;
+        }
     }
     
-
-
-
-
-
     return 0;
 }
